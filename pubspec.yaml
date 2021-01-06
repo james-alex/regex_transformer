@@ -3,14 +3,14 @@ description: >-
   Transforms text by taking capture groups matched by a [RegExp] and
   outputting them as plain text and/or evaluating them as expressions,
   as defined by an output template.
-version: 0.1.0
+version: 0.1.0-nullsafety
 homepage: https://github.com/james-alex/regex_transformer
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0-0 <3.0.0"
 
 dependencies:
-  expressions: ^0.1.5
+  expressions: ^0.2.0-nullsafety.1
 
 dev_dependencies:
   test: ^1.16.0-nullsafety.13
