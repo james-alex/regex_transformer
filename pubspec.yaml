@@ -3,7 +3,7 @@ description: >-
   Transforms text by taking capture groups matched by a [RegExp] and
   outputting them as plain text and/or evaluating them as expressions,
   as defined by an output template.
-version: 0.1.0-nullsafety
+version: 0.2.0-nullsafety
 homepage: https://github.com/james-alex/regex_transformer
 
 environment:
