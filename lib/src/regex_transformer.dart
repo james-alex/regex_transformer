@@ -485,7 +485,8 @@ class _CaptureGroup extends _OutputPart {
   static List<_CaptureGroup> parser(String input) {
     assert(input != null);
 
-    return _OutputPart.parser(input, onlyCaptureGroups: true).cast<_CaptureGroup>();
+    return _OutputPart.parser(input, onlyCaptureGroups: true)
+        .cast<_CaptureGroup>();
   }
 
   @override
