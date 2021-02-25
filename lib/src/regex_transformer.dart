@@ -213,7 +213,7 @@ class _OutputTemplate {
       : assert(parts != null),
         assert(strict != null);
 
-  /// Splits the output template into it's respective parts:
+  /// Splits the output template into its respective parts:
   /// plain text, capture groups, and expressions.
   factory _OutputTemplate.from(
     String template, {
