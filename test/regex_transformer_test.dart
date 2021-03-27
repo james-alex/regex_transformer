@@ -7,7 +7,7 @@ void main() {
       final inputs = transformTests.keys.toList();
       for (var i = 0; i < transformTests.length; i++) {
         final input = inputs[i];
-        final transformers = transformTests[input];
+        final transformers = transformTests[input]!;
         for (var j = 0; j < transformers.length; j++) {
           final output = transformers[j].transform(input);
           expect(output, equals(expectedTransformOutputs[i][j]));
@@ -19,7 +19,7 @@ void main() {
       final inputs = transformAllTests.keys.toList();
       for (var i = 0; i < transformAllTests.length; i++) {
         final input = inputs[i];
-        final transformers = transformAllTests[input];
+        final transformers = transformAllTests[input]!;
         for (var j = 0; j < transformers.length; j++) {
           final output = transformers[j].transformAll(input);
           expect(output, equals(expectedTransformAllOutputs[i][j]));
@@ -33,7 +33,7 @@ void main() {
         var errors = 0;
         for (var i = 0; i < transformTests.length; i++) {
           final input = inputs[i];
-          final transformers = transformTests[input];
+          final transformers = transformTests[input]!;
           for (var j = 0; j < transformers.length; j++) {
             try {
               final output =
@@ -53,7 +53,7 @@ void main() {
         var errors = 0;
         for (var i = 0; i < transformAllTests.length; i++) {
           final input = inputs[i];
-          final transformers = transformAllTests[input];
+          final transformers = transformAllTests[input]!;
           for (var j = 0; j < transformers.length; j++) {
             try {
               final output =

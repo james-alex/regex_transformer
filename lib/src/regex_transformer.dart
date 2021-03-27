@@ -1,6 +1,5 @@
 import 'dart:math' as m;
 import 'package:expressions/expressions.dart';
-import 'package:meta/meta.dart';
 
 /// {@template regex_transformer.RegexTransformer}
 ///
@@ -113,16 +112,12 @@ class RegexTransformer {
   /// will also be output as plain text with any of the capture groups that were
   /// matched replaced with their respective values.
   RegexTransformer({
-    @required this.regex,
-    @required this.output,
+    required this.regex,
+    required this.output,
     this.variables,
     this.math = false,
     this.strict = false,
-  })  : assert(regex != null),
-        assert(output != null),
-        assert(math != null),
-        assert(strict != null),
-        assert(
+  })  : assert(
             !math ||
                 variables == null ||
                 variables.keys.every((expression) =>
@@ -138,7 +133,7 @@ class RegexTransformer {
   final String output;
 
   /// The variables and functions mapped to the [Expression] evaluator's context.
-  final Map<String, dynamic> variables;
+  final Map<String, dynamic>? variables;
 
   /// If `true`, will map every constant and function from the `dart:math`
   /// library to the expression evaluator's context, allowing them to be parsed
@@ -160,42 +155,32 @@ class RegexTransformer {
   /// If [input] can't be matched by [regex], [input] will be returned
   /// unmodified.
   String transform(String input) {
-    assert(input != null);
-
     final match = regex.firstMatch(input);
-
-    if (match == null) {
-      return input;
-    }
-
+    if (match == null) return input;
     return _output.build(match);
   }
 
   /// Replaces every instance of [regex] within [input] with new text
   /// as defined by the [output] template.
   String transformAll(String input) {
-    assert(input != null);
-
     final matches = regex.allMatches(input);
     var matchOffset = 0;
-
     for (var match in matches) {
       final output = _output.build(match);
       input = input.replaceRange(
           match.start - matchOffset, match.end - matchOffset, output);
       matchOffset += (match.end - match.start) - output.length;
     }
-
     return input;
   }
 
   /// Returns a copy of `this` updated with the provided values.
   RegexTransformer copyWith({
-    RegExp regex,
-    String output,
-    Map<String, dynamic> variables,
-    bool math,
-    bool strict,
+    RegExp? regex,
+    String? output,
+    Map<String, dynamic>? variables,
+    bool? math,
+    bool? strict,
   }) =>
       RegexTransformer(
         regex: regex ?? this.regex,
@@ -209,22 +194,16 @@ class RegexTransformer {
 /// Parses a [RegexTransformer]'s output template and builds new text
 /// based on it from a [RegExpMatch].
 class _OutputTemplate {
-  const _OutputTemplate(this.parts, {@required this.strict})
-      : assert(parts != null),
-        assert(strict != null);
+  const _OutputTemplate(this.parts, {required this.strict});
 
   /// Splits the output template into its respective parts:
   /// plain text, capture groups, and expressions.
   factory _OutputTemplate.from(
     String template, {
-    @required Map<String, dynamic> variables,
-    @required bool math,
-    @required bool strict,
+    required Map<String, dynamic>? variables,
+    required bool math,
+    required bool strict,
   }) {
-    assert(template != null);
-    assert(math != null);
-    assert(strict != null);
-
     final parts = _OutputPart.parser(template,
         variables: variables, math: math, strict: strict);
     return _OutputTemplate(parts, strict: strict);
@@ -241,8 +220,6 @@ class _OutputTemplate {
   /// capture groups with their respective [match]es, and evaluating
   /// any expressions.
   String build(RegExpMatch match) {
-    assert(match != null);
-
     var output = '';
 
     // Build the output part by part.
@@ -293,19 +270,14 @@ abstract class _OutputPart {
   /// be returned.
   static List<_OutputPart> parser(
     String input, {
-    Map<String, dynamic> variables,
+    Map<String, dynamic>? variables,
     bool math = false,
     bool strict = false,
     bool onlyCaptureGroups = false,
   }) {
-    assert(input != null);
-    assert(math != null);
-    assert(strict != null);
-    assert(onlyCaptureGroups != null);
-
     final parts = <_OutputPart>[];
 
-    int expressionStart;
+    int? expressionStart;
     var nestingIndex = 0;
     var sliceStart = 0;
 
@@ -404,13 +376,11 @@ abstract class _OutputPart {
 
 /// Plain text defined within a [RegexTransformer]'s output template.
 class _PlainText extends _OutputPart {
-  const _PlainText(this.value) : assert(value != null);
+  const _PlainText(this.value);
 
   /// Removes any escape characters (`\`) from [value], unless they themselves
   /// are escaped, and returns a [_PlainText] with the resulting value.
   factory _PlainText.from(String value) {
-    assert(value != null);
-
     var length = value.length;
     for (var i = 0; i < length; i++) {
       if (value[i] == r'\') {
@@ -418,7 +388,6 @@ class _PlainText extends _OutputPart {
         length--;
       }
     }
-
     return _PlainText(value);
   }
 
@@ -431,11 +400,8 @@ class _PlainText extends _OutputPart {
 
 /// A capture group defined within a [RegexTransformer]'s output template.
 class _CaptureGroup extends _OutputPart {
-  const _CaptureGroup(this.id, {@required this.start, @required this.end})
-      : assert(id != null),
-        assert(start != null),
-        assert(end != null),
-        assert(id is String || id is int);
+  const _CaptureGroup(this.id, {required this.start, required this.end})
+      : assert(id is String || id is int);
 
   /// The name or index of the capture group this annotation refers to.
   final Object id;
@@ -451,14 +417,12 @@ class _CaptureGroup extends _OutputPart {
 
   /// Attempts to match a capture group annotation
   /// within [input] at [sliceStart].
-  static _CaptureGroup match(String input, {@required int sliceStart}) {
-    assert(input != null);
-    assert(sliceStart != null);
+  static _CaptureGroup? match(String input, {required int sliceStart}) {
     assert(input[sliceStart] == r'$');
 
     // Identify the end of the slice by finding the first invalid
     // character within [input] after [sliceStart].
-    int sliceEnd;
+    int? sliceEnd;
     for (var i = sliceStart + 1; i < input.length; i++) {
       if (!RegExp(r'[a-zA-Z0-9_]').hasMatch(input[i])) {
         sliceEnd = i;
@@ -482,12 +446,8 @@ class _CaptureGroup extends _OutputPart {
   }
 
   /// Returns a list of every capture group annotation found within [input].
-  static List<_CaptureGroup> parser(String input) {
-    assert(input != null);
-
-    return _OutputPart.parser(input, onlyCaptureGroups: true)
-        .cast<_CaptureGroup>();
-  }
+  static List<_CaptureGroup> parser(String input) =>
+      _OutputPart.parser(input, onlyCaptureGroups: true).cast<_CaptureGroup>();
 
   @override
   String toString() => '\$$id';
@@ -497,14 +457,11 @@ class _CaptureGroup extends _OutputPart {
 class _Expression extends _OutputPart {
   const _Expression(
     this.expression, {
-    @required this.captureGroups,
-    @required this.variables,
-    @required this.math,
-    @required this.raw,
-  })  : assert(expression != null),
-        assert(captureGroups != null),
-        assert(math != null),
-        assert(raw != null);
+    required this.captureGroups,
+    required this.variables,
+    required this.math,
+    required this.raw,
+  });
 
   /// The parsed expression.
   final Expression expression;
@@ -513,7 +470,7 @@ class _Expression extends _OutputPart {
   final Set<Object> captureGroups;
 
   /// Variables and functions to be mapped to the evaluator's context.
-  final Map<String, dynamic> variables;
+  final Map<String, dynamic>? variables;
 
   /// If `true`, every constant and function from the `dart:math` library
   /// will be mapped to the evaluator's context. ([_mathExpressions])
@@ -524,14 +481,11 @@ class _Expression extends _OutputPart {
 
   /// Parses [input] as an [Expression], returns `null` if it's not
   /// a valid expression.
-  static _Expression parse(
+  static _Expression? parse(
     String input, {
-    @required Map<String, dynamic> variables,
-    @required bool math,
+    required Map<String, dynamic>? variables,
+    required bool math,
   }) {
-    assert(input != null);
-    assert(math != null);
-
     // Parse the expression.
     final expression = Expression.tryParse(input);
 
@@ -561,16 +515,13 @@ class _Expression extends _OutputPart {
   /// thrown if the [expression] can't be evaluated, otherwise the expression
   /// will be treated as plain text, with the capture group annotations that
   /// were matched replaced with their respective values.
-  String evaluate(RegExpMatch match, {@required bool strict}) {
-    assert(match != null);
-    assert(strict != null);
-
+  String evaluate(RegExpMatch match, {required bool strict}) {
     // The variables and functions mapped to the evaluator.
     final context = <String, dynamic>{};
 
     // Add any user-provided and the `dart:math` library's
     // variables/functions to the context, if applicable.
-    if (variables != null) context.addAll(variables);
+    if (variables != null) context.addAll(variables!);
     if (math) context.addAll(_mathExpressions);
 
     // If set the `true`, the expression can't be evaluated and
@@ -704,50 +655,34 @@ extension StringTransformers on String {
   String transform(
     RegExp regex,
     String output, {
-    Map<String, dynamic> variables,
+    Map<String, dynamic>? variables,
     bool math = false,
     bool strict = false,
-  }) {
-    assert(regex != null);
-    assert(output != null);
-    assert(math != null);
-    assert(strict != null);
-
-    final transformer = RegexTransformer(
-      regex: regex,
-      output: output,
-      variables: variables,
-      math: math,
-      strict: strict,
-    );
-
-    return transformer.transform(this);
-  }
+  }) =>
+      RegexTransformer(
+        regex: regex,
+        output: output,
+        variables: variables,
+        math: math,
+        strict: strict,
+      ).transform(this);
 
   /// Returns a new string with every instance of [regex] mathced within
   /// `this` replaced with new text as defined by the [output] template.
   String transformAll(
     RegExp regex,
     String output, {
-    Map<String, dynamic> variables,
+    Map<String, dynamic>? variables,
     bool math = false,
     bool strict = false,
-  }) {
-    assert(regex != null);
-    assert(output != null);
-    assert(math != null);
-    assert(strict != null);
-
-    final transformer = RegexTransformer(
-      regex: regex,
-      output: output,
-      variables: variables,
-      math: math,
-      strict: strict,
-    );
-
-    return transformer.transformAll(this);
-  }
+  }) =>
+      RegexTransformer(
+        regex: regex,
+        output: output,
+        variables: variables,
+        math: math,
+        strict: strict,
+      ).transformAll(this);
 }
 
 /// Adds the [transform] and [transformAll] methods from [RegexTransformer]
@@ -761,58 +696,40 @@ extension RegExpTransformers on RegExp {
   String transform(
     String input,
     String output, {
-    Map<String, dynamic> variables,
+    Map<String, dynamic>? variables,
     bool math = false,
     bool strict = false,
-  }) {
-    assert(input != null);
-    assert(output != null);
-    assert(math != null);
-    assert(strict != null);
-
-    final transformer = RegexTransformer(
-      regex: this,
-      output: output,
-      variables: variables,
-      math: math,
-      strict: strict,
-    );
-
-    return transformer.transform(input);
-  }
+  }) =>
+      RegexTransformer(
+        regex: this,
+        output: output,
+        variables: variables,
+        math: math,
+        strict: strict,
+      ).transform(input);
 
   /// Returns a new string with every instance of `this` matched within
   /// [input] replaced with new text as defined by the [output] template.
   String transformAll(
     String input,
     String output, {
-    Map<String, dynamic> variables,
+    Map<String, dynamic>? variables,
     bool math = false,
     bool strict = false,
-  }) {
-    assert(input != null);
-    assert(output != null);
-    assert(math != null);
-    assert(strict != null);
-
-    final transformer = RegexTransformer(
-      regex: this,
-      output: output,
-      variables: variables,
-      math: math,
-      strict: strict,
-    );
-
-    return transformer.transformAll(input);
-  }
+  }) =>
+      RegexTransformer(
+        regex: this,
+        output: output,
+        variables: variables,
+        math: math,
+        strict: strict,
+      ).transformAll(input);
 }
 
 extension _GetGroup on RegExpMatch {
   /// Returns the text captured by the group associated with [identifier].
-  String getGroup(Object identifier) {
-    assert(identifier != null);
+  String? getGroup(Object identifier) {
     assert(identifier is int || identifier is String);
-
     return identifier is String
         ? groupNames.contains(identifier)
             ? namedGroup(identifier)
